@@ -19,7 +19,7 @@
 #include <pinDefinitions.hpp>
 #include <main.hpp>
 #include <devices.hpp>
-#include <screen.hpp>
+#include <display.hpp>
 
 // Variables pour gérer l'arrosage.
 int wateringDelay = 0;
@@ -29,7 +29,7 @@ int wateringInterval = 0;
 Servo roofOpeningServo;
 
 // Création du capteur de température et humidité de l'air.
-DHT_Unified airTempSensor(TEMPERATURE_HUMIDITY_SENSOR_PIN, DHT22);
+DHT_Unified airTempSensor(PIN_TEMPERATURE_HUMIDITY_SENSOR, DHT22);
 
 // Création de l'écran LCD.
 rgb_lcd screen;
@@ -38,25 +38,25 @@ void setup()
 {
   // Initialisation et affichage du message initial sur l'écran.
   screen.begin(16, 2);
-  displayText("Initialisation...", 255, 255, 255);
+  displayText("Initialisation", 255, 255, 255);
   delay(1000);
 
   // Initialisation des broches des capteurs.
-  pinMode(LIGHT_SENSOR_PIN, INPUT);
-  pinMode(WATER_SENSOR_PIN, INPUT);
+  pinMode(PIN_LIGHT_SENSOR, INPUT);
+  pinMode(PIN_WATER_SENSOR, INPUT);
 
   // Initialisation des broches des actionneurs.
-  pinMode(LED_STRIP_RELAY_PIN, OUTPUT);
-  pinMode(HUMIDIFIER_RELAY_PIN, OUTPUT);
-  pinMode(WATER_PUMP_RELAY_PIN, OUTPUT);
+  pinMode(PIN_LED_STRIP_RELAY, OUTPUT);
+  pinMode(PIN_HUMIDIFIER_RELAY, OUTPUT);
+  pinMode(PIN_WATER_PUMP_RELAY, OUTPUT);
 
   // Initialisation des composants.
-  roofOpeningServo.attach(ROOF_OPENING_SERVOMOTOR_PIN);
+  roofOpeningServo.attach(PIN_ROOF_OPENING_SERVOMOTOR);
   roofOpeningServo.write(roofOpeningServoPosition);
   airTempSensor.begin();
 
   // Affichage du message de réussite.
-  displayText("Initialisation terminée !", 0, 255, 0);
+  displayText("Pret !", 0, 255, 0);
 }
 
 void loop()
@@ -82,16 +82,16 @@ void loop()
   // En fonction de la température, on effectue une action.
   else
   {
-    if (airValues.temperature >= 30 && roofOpeningServoPosition == 0)
+    if (airValues.temperature >= 25 && roofOpeningServoPosition == 0)
     {
       roofOpeningServoControl(50);
-      displayText("Ouverture du toit...", 0, 255, 0);
+      displayText("I Toit", 0, 255, 0);
     }
 
-    else if (roofOpeningServoPosition == 50)
+    else if (airValues.temperature <= 23 && roofOpeningServoPosition == 50)
     {
       roofOpeningServoControl(0);
-      displayText("Fermeture du toit...", 0, 255, 0);
+      displayText("O Toit", 0, 255, 0);
     }
   }
 
@@ -107,44 +107,45 @@ void loop()
   // En fonction de l'humidité, on effectue une action.
   else
   {
-    int humidifierState = digitalRead(HUMIDIFIER_RELAY_PIN);
+    int humidifierState = digitalRead(PIN_HUMIDIFIER_RELAY);
 
     if (airValues.relative_humidity < 50 && humidifierState == LOW)
     {
-      digitalWrite(HUMIDIFIER_RELAY_PIN, HIGH);
-      displayText("Humidification...", 0, 255, 0);
+      digitalWrite(PIN_HUMIDIFIER_RELAY, HIGH);
+      displayText("I Humidificateur", 0, 255, 0);
     }
 
-    else if (humidifierState == HIGH)
+    else if (airValues.relative_humidity > 60 && humidifierState == HIGH)
     {
-      digitalWrite(HUMIDIFIER_RELAY_PIN, LOW);
-      displayText("Arrêt de l'humidification...", 0, 255, 0);
+      digitalWrite(PIN_HUMIDIFIER_RELAY, LOW);
+      displayText("O Humidificateur", 0, 255, 0);
     }
   }
 
   // Gestion de la luminosité : contrôle des rubans de DEL sur le toit de la serre.
-  int lightValue = analogRead(LIGHT_SENSOR_PIN);
-  int LEDState = digitalRead(LED_STRIP_RELAY_PIN);
+  int lightValue = analogRead(PIN_LIGHT_SENSOR);
+  int LEDState = digitalRead(PIN_LED_STRIP_RELAY);
   if (lightValue < 800 && LEDState == LOW)
   {
-    digitalWrite(LED_STRIP_RELAY_PIN, HIGH);
-    displayText("Activation de l'éclairage...", 0, 255, 0);
+    digitalWrite(PIN_LED_STRIP_RELAY, HIGH);
+    displayText("I Eclairage", 0, 255, 0);
   }
 
-  else if (LEDState == HIGH)
+  else if (lightValue > 900 && LEDState == HIGH)
   {
-    digitalWrite(LED_STRIP_RELAY_PIN, LOW);
-    displayText("Arrêt de l'éclairage...", 0, 255, 0);
+    digitalWrite(PIN_LED_STRIP_RELAY, LOW);
+    displayText("O Eclairage", 0, 255, 0);
   }
 
   // Gestion de l'eau : contrôle de la pompe.
-  int waterValue = analogRead(WATER_SENSOR_PIN);
-  int pumpState = digitalRead(WATER_PUMP_RELAY_PIN);
+  //Cette partie est ignorée car non testée.
+  /*int waterValue = analogRead(PIN_WATER_SENSOR);
+  // int pumpState = digitalRead(PIN_WATER_PUMP_RELAY);
   if (waterValue < 200 && wateringDelay == 0 && wateringInterval == 0)
   {
-    digitalWrite(WATER_PUMP_RELAY_PIN, HIGH);
+    digitalWrite(PIN_WATER_PUMP_RELAY, HIGH);
     wateringDelay++;
-    displayText("Activation de la pompe...", 0, 255, 0);
+    displayText("I Pompe", 0, 255, 0);
   }
 
   // Boucle pour éteindre automatiquement la pompe après 10 secondes.
@@ -154,6 +155,8 @@ void loop()
     {
       wateringDelay = 0;
       wateringInterval = 1;
+      digitalWrite(PIN_WATER_PUMP_RELAY, LOW);
+      displayText("O Pompe", 0, 255, 0);
     }
 
     else
@@ -163,9 +166,9 @@ void loop()
   }
 
   // Boucle pour limiter le nombre d'activations de la pompe.
-  if(wateringInterval != 0)
+  if (wateringInterval != 0)
   {
-    if(wateringInterval == 60000)
+    if (wateringInterval == 60000)
     {
       wateringInterval = 0;
     }
@@ -174,5 +177,5 @@ void loop()
     {
       wateringInterval++;
     }
-  }
+  }*/
 }

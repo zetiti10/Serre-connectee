@@ -1,5 +1,5 @@
 /**
- * @file main.cpp
+ * @file devices.cpp
  * @author Louis L
  * @brief Fichier gérant les différents périphériques de la serre.
  * @version 1.0

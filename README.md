@@ -14,14 +14,14 @@ Le programme est amené à évoluer.
 
 | Broche  | Périphérique connecté                | Nom dans le programme             |
 | ------- | ------------------------------------ | --------------------------------- |
-| A0 / 14 | Capteur d'eau                        | `WATER_SENSOR_PIN`                |
-| A1 / 15 | Capteur de luminosité                | `LIGHT_SENSOR_PIN`                |
-|  8      | Relais humidificateur                | `HUMIDIFIER_RELAY_PIN`            |
-|  6      | Servomoteur ouverture toit           | `ROOF_OPENING_SERVOMOTOR_PIN`     |
-|  3      | Capteur d'humidité et de température | `TEMPERATURE_HUMIDITY_SENSOR_PIN` |
-|  2      | Bouton                               | `BUTTON_PIN`                      |
-|  7      | Relais ruban DEL                     | `LED_STRIP_RELAY_PIN`             |
-|  5      | Relais de la pompe                   | `WATER_PUMP_RELAY_PIN`            |
+| A0 / 14 | Capteur d'eau                        | `PIN_WATER_SENSOR`                |
+| A1 / 15 | Capteur de luminosité                | `PIN_LIGHT_SENSOR`                |
+|  8      | Relais humidificateur                | `PIN_HUMIDIFIER_RELAY`            |
+|  6      | Servomoteur ouverture toit           | `PIN_ROOF_OPENING_SERVOMOTOR`     |
+|  3      | Capteur d'humidité et de température | `PIN_TEMPERATURE_HUMIDITY_SENSOR` |
+|  2      | Bouton                               | `PIN_BUTTON`                      |
+|  7      | Relais ruban DEL                     | `PIN_LED_STRIP_RELAY`             |
+|  5      | Relais de la pompe                   | `PIN_WATER_PUMP_RELAY`            |
 |  I2C    | Ecran LCD                            |                                   |
 
 ## Ecran LCD
@@ -39,5 +39,5 @@ Différents codes couleurs sont utilisés :
 ## Choses à faire
 
 - [x] Programmer la base du programme.
-- [ ] Tester le programme.
-- [ ] Vérifier la broche du relais de la pompe à eau.
+- [ ] Tester la partie gestion de l'eau.
+- [ ] Régler le problème du servomoteur.
